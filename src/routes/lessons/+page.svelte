@@ -63,6 +63,12 @@
 
 <section class="w-[90vw] flex flex-col items-center my-10">
   <div class="flex justify-end w-full mb-3">
+    <a
+      class="border border-gray-600 text-black px-5 py-2 rounded-md mr-2"
+      href="/lessons/new"
+    >
+      New
+    </a>
     <button
       class="bg-gray-600 text-white px-5 py-2 rounded-md"
       on:click={() => getLessons()}
@@ -75,9 +81,13 @@
     Loading...
   {:else}
     {#each lessons as lesson}
-      <div class="bg-gray-100 rounded-md mb-5 px-10 py-5 w-[500px]">
+      <div
+        class="bg-gray-100 rounded-md mb-5 px-10 py-5 w-[500px] hover:shadow-lg"
+      >
         <h3 class="text-xl mb-0">
-          <a href="/lessons/{lesson.slug}">{lesson.id}. - {lesson.title}</a>
+          <a class="hover:underline" href="/lessons/{lesson.slug}"
+            >{lesson.id}. - {lesson.title}</a
+          >
         </h3>
         <p class="text-sm mb-0">By {lesson.author}</p>
         <div class="flex items-center justify-between">
