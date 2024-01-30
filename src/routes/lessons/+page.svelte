@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { supabase } from '$lib/supabase';
 
   /**
@@ -8,6 +8,11 @@
   let lessons = [];
 
   let isLoading = false;
+
+  /**
+   * @type {import("@supabase/realtime-js").RealtimeChannel}
+   */
+  let lessonsChannel;
 
   async function getLessons() {
     isLoading = true;
@@ -58,6 +63,36 @@
 
   onMount(() => {
     getLessons();
+
+    lessonsChannel = supabase
+      .channel('any')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'lesson' },
+        (payload) => {
+          console.log('Change received!', payload);
+          const { eventType, new: newLessonPayload, old } = payload;
+
+          if (eventType === 'DELETE') {
+            lessons = lessons.filter((lesson) => lesson.id !== old.id);
+          } else if (eventType === 'INSERT') {
+            lessons = [
+              ...lessons,
+              {
+                ...newLessonPayload,
+                createdAt: newLessonPayload.created_at,
+              },
+            ];
+          }
+        }
+      )
+      .subscribe();
+  });
+
+  onDestroy(() => {
+    if (!lessonsChannel) return;
+
+    supabase.removeChannel(lessonsChannel);
   });
 </script>
 
