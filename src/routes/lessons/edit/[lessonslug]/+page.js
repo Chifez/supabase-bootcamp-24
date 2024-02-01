@@ -11,7 +11,7 @@ export const load = async ({ params }) => {
 `
   );
 
-  const lessonData = data.filter((lesson) => lesson.slug !== params.lessonslug);
+  const lessonData = data.filter((lesson) => lesson.slug == params.lessonslug);
   return {
     id: lessonData[0].id,
     slug: lessonData[0].slug,

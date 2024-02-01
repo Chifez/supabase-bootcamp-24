@@ -7,7 +7,6 @@
 
   let editLesson: any;
 
-  let formError;
   onMount(() => {
     editLesson = data;
   });
@@ -24,14 +23,12 @@
       .eq('id', id);
 
     if (error) {
-      formError = error;
       console.error('Submission error', error);
 
       alert('Failed');
       return;
     }
 
-    alert('Success');
     goto('/lessons');
   }
 </script>
