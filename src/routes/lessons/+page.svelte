@@ -1,6 +1,7 @@
 <script>
   import { onDestroy, onMount } from 'svelte';
   import { supabase } from '$lib/supabase';
+  import { goto } from '$app/navigation';
 
   /**
    * @type {any[]}
@@ -28,6 +29,10 @@
     `
       )
       .order('id', { ascending: true });
+
+    if (data) {
+      console.log(data);
+    }
 
     if (error) {
       isLoading = false;
@@ -61,39 +66,43 @@
     lessons = lessons.filter((lesson) => lesson.id !== id);
   }
 
+  function goToEditPage(lesson) {
+    goto(`/lessons/edit/${lesson.slug}`, { state: lesson });
+  }
+
   onMount(() => {
     getLessons();
 
-    lessonsChannel = supabase
-      .channel('any')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'lesson' },
-        (payload) => {
-          console.log('Change received!', payload);
-          const { eventType, new: newLessonPayload, old } = payload;
+    // lessonsChannel = supabase
+    //   .channel('any')
+    //   .on(
+    //     'postgres_changes',
+    //     { event: '*', schema: 'public', table: 'lesson' },
+    //     (payload) => {
+    //       console.log('Change received!', payload);
+    //       const { eventType, new: newLessonPayload, old } = payload;
 
-          if (eventType === 'DELETE') {
-            lessons = lessons.filter((lesson) => lesson.id !== old.id);
-          } else if (eventType === 'INSERT') {
-            lessons = [
-              ...lessons,
-              {
-                ...newLessonPayload,
-                createdAt: newLessonPayload.created_at,
-              },
-            ];
-          }
-        }
-      )
-      .subscribe();
+    //       if (eventType === 'DELETE') {
+    //         lessons = lessons.filter((lesson) => lesson.id !== old.id);
+    //       } else if (eventType === 'INSERT') {
+    //         lessons = [
+    //           ...lessons,
+    //           {
+    //             ...newLessonPayload,
+    //             createdAt: newLessonPayload.created_at,
+    //           },
+    //         ];
+    //       }
+    //     }
+    //   )
+    //   .subscribe();
   });
 
-  onDestroy(() => {
-    if (!lessonsChannel) return;
+  // onDestroy(() => {
+  //   if (!lessonsChannel) return;
 
-    supabase.removeChannel(lessonsChannel);
-  });
+  //   supabase.removeChannel(lessonsChannel);
+  // });
 </script>
 
 <section class="w-[90vw] flex flex-col items-center my-10">
@@ -127,13 +136,20 @@
         <p class="text-sm mb-0">By {lesson.author}</p>
         <div class="flex items-center justify-between">
           <p class="text-xs">{lesson.createdAt}</p>
-
-          <button
-            class="bg-red-600 text-white px-5 py-2 rounded-md"
-            on:click={() => deleteLesson(lesson.id)}
-          >
-            Delete
-          </button>
+          <div>
+            <button
+              class="bg-red-600 text-white px-5 py-2 rounded-md"
+              on:click={() => deleteLesson(lesson.id)}
+            >
+              Delete
+            </button>
+            <button
+              class="bg-green-600 text-white px-5 py-2 rounded-md"
+              on:click={() => goToEditPage(lesson)}
+            >
+              Edit
+            </button>
+          </div>
         </div>
       </div>
     {/each}
