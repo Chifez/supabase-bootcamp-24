@@ -36,7 +36,7 @@
 {#if editLesson}
   <section class="w-[90vw] flex flex-col items-center my-10">
     <div class="max-w-[500px] w-full">
-      <h2 class="mb-4 text-2xl">Create a new lesson</h2>
+      <h2 class="mb-4 text-2xl">Edit lesson</h2>
       <form
         class="p-5 rounded-md border"
         on:submit|preventDefault={() => onSubmit(editLesson.id)}
